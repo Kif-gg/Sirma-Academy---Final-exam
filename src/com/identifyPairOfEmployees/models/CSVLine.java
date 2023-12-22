@@ -3,23 +3,24 @@ package com.identifyPairOfEmployees.models;
 import java.time.LocalDate;
 
 public class CSVLine {
-    private final int empId;
-    private int projectId;
+    private final int empID;
+    private int projectID;
     private LocalDate startDate;
     private LocalDate endDate;
-    public CSVLine(int empId, int projectId, LocalDate startDate, LocalDate endDate) {
-        this.empId = empId;
-        this.projectId = projectId;
+
+    public CSVLine(int empID, int projectID, LocalDate startDate, LocalDate endDate) {
+        this.empID = empID;
+        this.projectID = projectID;
         this.startDate = startDate;
         this.endDate = endDate;
     }
 
-    public int getEmpId() {
-        return empId;
+    public int getEmpID() {
+        return empID;
     }
 
-    public int getProjectId() {
-        return projectId;
+    public int getProjectID() {
+        return projectID;
     }
 
     public LocalDate getStartDate() {
@@ -28,10 +29,6 @@ public class CSVLine {
 
     public LocalDate getEndDate() {
         return endDate;
-    }
-
-    public void setProjectId(int projectId) {
-        this.projectId = projectId;
     }
 
     public void setStartDate(LocalDate startDate) {
