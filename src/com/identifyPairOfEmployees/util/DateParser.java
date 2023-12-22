@@ -1,7 +1,8 @@
 package com.identifyPairOfEmployees.util;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 
 public class DateParser {
     private final String dateFormat;
@@ -15,11 +16,10 @@ public class DateParser {
     }
 
     public boolean validateFormat(String input) {
-        SimpleDateFormat sdf = new SimpleDateFormat(dateFormat);
-        sdf.setLenient(false);
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern(dateFormat, Locale.ENGLISH);
         try {
-            Date parsedDate = sdf.parse(input);
-            String formattedInput = sdf.format(parsedDate);
+            LocalDate parsedDate = LocalDate.parse(input, dtf);
+            String formattedInput = dtf.format(parsedDate);
             return input.equals(formattedInput);
         } catch (Exception e) {
             return false;
