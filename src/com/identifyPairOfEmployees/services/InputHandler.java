@@ -198,21 +198,19 @@ public class InputHandler {
                 switch (command) {
                     case "1":
                         manageAllEmployeesMenu(sc);
-                        System.out.println(ConsoleMenus.mainMenu);
                         break;
                     case "2":
                         managePairMenu(sc);
-                        System.out.println(ConsoleMenus.mainMenu);
                         break;
                     case "3":
                         createEmployee(sc);
                         Main.changesMade = true;
-                        System.out.println(ConsoleMenus.mainMenu);
                         break;
                     default:
                         System.out.println("Invalid input, please try again!");
-                        break;
+                        continue;
                 }
+                System.out.println(ConsoleMenus.mainMenu);
                 command = sc.nextLine();
             }
         } catch (Exception e) {
@@ -256,7 +254,14 @@ public class InputHandler {
         while (!command.equals("0")) {
             switch (command) {
                 case "1":
+                    editEmployeeMenu(sc, employeeIndex);
                     break;
+                case "2":
+                    break;
+                default:
+                    System.out.println("Invalid input, please try again!");
+                    command = sc.nextLine();
+                    continue;
             }
             System.out.println(ConsoleMenus.showEmployeeDetails(employeeIndex));
             command = sc.nextLine();
@@ -306,10 +311,10 @@ public class InputHandler {
         return false;
     }
 
-    private static void assignProjectsToEmployee(Scanner sc, Employee addedEmployee) {
+    private static void assignProjectsToEmployee(Scanner sc, Employee employee) {
         boolean hasFinishedAssigning = false;
         while (!hasFinishedAssigning) {
-            assignProjectToEmployee(sc, addedEmployee);
+            assignProjectToEmployee(sc, employee);
 
             System.out.println("Will you add more assignments to this employee? (type 'Yes' or 'No')");
             String command = sc.nextLine();
@@ -321,13 +326,13 @@ public class InputHandler {
         }
     }
 
-    private static void assignProjectToEmployee(Scanner sc, Employee addedEmployee) {
-        System.out.println("Assign to the employee a project (Type just the ID of the project):");
+    private static void assignProjectToEmployee(Scanner sc, Employee employee) {
+        System.out.println("Assign a project to the employee (Just type the ID of the project):");
         boolean isCommandValid = false;
         LocalDate startDate;
         LocalDate endDate;
         while (!isCommandValid) {
-            int projId = getProjectId(sc, addedEmployee);
+            int projId = getProjectId(sc, employee);
             startDate = getStartDate(sc);
             endDate = getEndDate(sc);
 
@@ -336,7 +341,7 @@ public class InputHandler {
                 endDate = getEndDate(sc);
             }
             AssignedProject ap = new AssignedProject(projId, startDate, endDate);
-            addedEmployee.addAssignedProject(ap);
+            employee.addAssignedProject(ap);
             isCommandValid = true;
         }
     }
@@ -385,7 +390,7 @@ public class InputHandler {
     }
 
     private static LocalDate getEndDate(Scanner sc) {
-        System.out.println("Type in the ending date of the assignment or type 'NULL' if the project has not ended:");
+        System.out.println("Type in the ending date of the assignment or type 'NULL' if the assignment has not ended:");
         String command = sc.nextLine();
         if (command.equals("NULL")) {
             return LocalDate.now();
@@ -404,6 +409,29 @@ public class InputHandler {
                     command = sc.nextLine();
                 }
             }
+        }
+    }
+
+    private static void editEmployeeMenu(Scanner sc, int employeeIndex) {
+        System.out.println(ConsoleMenus.editEmployeeMenu);
+        Employee employee = Main.employees.get(employeeIndex);
+        String command = sc.nextLine();
+        while (!command.equals("0")) {
+            switch (command) {
+                case "1":
+                    assignProjectsToEmployee(sc, employee);
+                    break;
+                case "2":
+                    break;
+                case "3":
+                    break;
+                default:
+                    System.out.println("Invalid input, please try again!");
+                    command = sc.nextLine();
+                    continue;
+            }
+            System.out.println(ConsoleMenus.editEmployeeMenu);
+            command = sc.nextLine();
         }
     }
 }
