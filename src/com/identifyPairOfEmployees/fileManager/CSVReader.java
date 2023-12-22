@@ -42,7 +42,8 @@ public class CSVReader {
                 lines.add(new CSVLine(empID, projID, dateFrom, dateTo));
             }
         } catch (IOException exception) {
-            exception.printStackTrace();
+            System.err.println(exception.getMessage());
+            System.err.println("Something went wrong while reading data!");
         }
         Main.lines = lines;
         return employees;

@@ -41,7 +41,7 @@ public class InputHandler {
                                     isCommandValid = true;
                                     break;
                                 default:
-                                    System.out.println("Invalid input, please try again!");
+                                    System.err.println("Invalid input, please try again!");
                             }
                         }
                         System.out.println(ConsoleMenus.selectMonthFormat);
@@ -66,7 +66,7 @@ public class InputHandler {
                                     isCommandValid = true;
                                     break;
                                 default:
-                                    System.out.println("Invalid input, please try again!");
+                                    System.err.println("Invalid input, please try again!");
                             }
                         }
                         System.out.println(ConsoleMenus.selectYearFormat);
@@ -83,7 +83,7 @@ public class InputHandler {
                                     isCommandValid = true;
                                     break;
                                 default:
-                                    System.out.println("Invalid input, please try again!");
+                                    System.err.println("Invalid input, please try again!");
                             }
                         }
                         System.out.println(ConsoleMenus.selectSeparator);
@@ -112,7 +112,7 @@ public class InputHandler {
                                     isCommandValid = true;
                                     break;
                                 default:
-                                    System.out.println("Invalid input, please try again!");
+                                    System.err.println("Invalid input, please try again!");
                             }
                         }
                         System.out.println(ConsoleMenus.selectOrder);
@@ -175,19 +175,20 @@ public class InputHandler {
                                     isCommandValid = true;
                                     break;
                                 default:
-                                    System.out.println("Invalid input, please try again!");
+                                    System.err.println("Invalid input, please try again!");
                             }
                         }
                         return new DateParser(sb.toString());
                     case "2":
                         return new DateParser("yyyy-MM-dd");
                     default:
-                        System.out.println("Invalid input, please try again!");
+                        System.err.println("Invalid input, please try again!");
                         command = sc.nextLine();
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            System.err.println(e.getMessage());
+            System.err.println("Something went wrong while creating date parser!");
         }
         return null;
     }
@@ -209,14 +210,16 @@ public class InputHandler {
                         createEmployee(sc);
                         break;
                     default:
-                        System.out.println("Invalid input, please try again!");
+                        System.err.println("Invalid input, please try again!");
+                        command = sc.nextLine();
                         continue;
                 }
                 System.out.println(ConsoleMenus.mainMenu);
                 command = sc.nextLine();
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            System.err.println(e.getMessage());
+            System.err.println("Something went wrong while managing employees!");
         }
     }
 
@@ -225,7 +228,7 @@ public class InputHandler {
         String command = sc.nextLine();
         while (!command.equals("0")) {
             if (Main.employees.isEmpty()) {
-                System.out.println("Invalid input, please try again!");
+                System.err.println("Invalid input, please try again!");
                 command = sc.nextLine();
                 continue;
             } else {
@@ -234,13 +237,13 @@ public class InputHandler {
                     if (employeeIndex >= 0 && employeeIndex < Main.employees.size()) {
                         manageEmployeeDetailsMenu(sc, employeeIndex);
                     } else {
-                        System.out.println("Invalid input, please try again!");
+                        System.err.println("Invalid input, please try again!");
                         command = sc.nextLine();
                         continue;
                     }
                 } catch (Exception e) {
-                    e.printStackTrace();
-                    System.out.println("Invalid input, please try again!");
+                    System.err.println(e.getMessage());
+                    System.err.println("Invalid input, please try again!");
                     command = sc.nextLine();
                     continue;
                 }
@@ -264,7 +267,7 @@ public class InputHandler {
                     }
                     break;
                 default:
-                    System.out.println("Invalid input, please try again!");
+                    System.err.println("Invalid input, please try again!");
                     command = sc.nextLine();
                     continue;
             }
@@ -279,7 +282,7 @@ public class InputHandler {
         System.out.println(ConsoleMenus.printEmployeesAndProjects(pg));
         String command = sc.nextLine();
         while (!command.equals("0")) {
-            System.out.println("Invalid input, please try again!");
+            System.err.println("Invalid input, please try again!");
             command = sc.nextLine();
         }
     }
@@ -327,7 +330,7 @@ public class InputHandler {
             if (command.equals("No")) {
                 hasFinishedAssigning = true;
             } else if (!command.equals("Yes")) {
-                System.out.println("Invalid input, please try again!");
+                System.err.println("Invalid input, please try again!");
             }
         }
     }
@@ -343,7 +346,7 @@ public class InputHandler {
             endDate = getEndDate(sc);
 
             while (endDate.isBefore(startDate)) {
-                System.out.println("Start date must be before or equal to end date!");
+                System.err.println("Start date must be before or equal to end date!");
                 endDate = getEndDate(sc);
             }
             AssignedProject ap = new AssignedProject(projID, startDate, endDate);
@@ -365,11 +368,11 @@ public class InputHandler {
                         .stream()
                         .anyMatch(assignedProject -> assignedProject.getProjectID() == finalProjID);
                 if (doesHaveAssignedPr) {
-                    System.out.println("This project is already assigned to the employee!");
+                    System.err.println("This project is already assigned to the employee!");
                 }
             } catch (Exception e) {
-                e.printStackTrace();
-                System.out.println("Invalid project ID! Use numbers only!");
+                System.err.println(e.getMessage());
+                System.err.println("Invalid project ID! Use numbers only!");
             }
         }
         return projID;
@@ -386,16 +389,16 @@ public class InputHandler {
                     if (LocalDate.parse(command, dtf).isBefore(LocalDate.now()) || LocalDate.parse(command, dtf).isEqual(LocalDate.now())) {
                         return LocalDate.parse(command, dtf);
                     } else {
-                        System.out.println("Date must not be after the current date!");
+                        System.err.println("Date must not be after the current date!");
                         command = sc.nextLine();
                     }
                 } else {
-                    System.out.println("Invalid input, please try again!");
+                    System.err.println("Invalid input, please try again!");
                     command = sc.nextLine();
                 }
             } catch (Exception e) {
-                e.printStackTrace();
-                System.out.println("Invalid input, please try again!");
+                System.err.println(e.getMessage());
+                System.err.println("Invalid input, please try again!");
                 command = sc.nextLine();
             }
         }
@@ -415,15 +418,15 @@ public class InputHandler {
                         if (LocalDate.parse(command, dtf).isBefore(LocalDate.now()) || LocalDate.parse(command, dtf).isEqual(LocalDate.now())) {
                             return LocalDate.parse(command, dtf);
                         } else {
-                            System.out.println("Date must not be after the current date!");
+                            System.err.println("Date must not be after the current date!");
                         }
                     } else {
-                        System.out.println("Invalid input, please try again!");
+                        System.err.println("Invalid input, please try again!");
                     }
                 }
             } catch (Exception e) {
-                e.printStackTrace();
-                System.out.println("Invalid input, please try again!");
+                System.err.println(e.getMessage());
+                System.err.println("Invalid input, please try again!");
             }
         }
     }
@@ -456,13 +459,13 @@ public class InputHandler {
                     break;
                 case "3":
                     if (employee.getAssignedProjects().size() == 1) {
-                        System.out.println("Employee must have at least two projects assigned to delete one!");
+                        System.err.println("Employee must have at least two projects assigned to delete one!");
                     } else {
                         deleteAssignment(sc, employee);
                     }
                     break;
                 default:
-                    System.out.println("Invalid input, please try again!");
+                    System.err.println("Invalid input, please try again!");
                     command = sc.nextLine();
                     continue;
             }
@@ -483,13 +486,13 @@ public class InputHandler {
                     AssignedProject ap = assignedProjects.get(projectIndex);
                     manageProjectDetailsMenu(sc, ap, empID);
                 } else {
-                    System.out.println("Invalid input, please try again!");
+                    System.err.println("Invalid input, please try again!");
                     command = sc.nextLine();
                     continue;
                 }
             } catch (Exception e) {
-                e.printStackTrace();
-                System.out.println("Invalid input, please try again!");
+                System.err.println(e.getMessage());
+                System.err.println("Invalid input, please try again!");
                 command = sc.nextLine();
                 continue;
             }
@@ -506,7 +509,7 @@ public class InputHandler {
                 case "1":
                     LocalDate startDate = getStartDate(sc);
                     while (ap.getEndDate().isBefore(startDate)) {
-                        System.out.println("Start date must be before or equal to end date!");
+                        System.err.println("Start date must be before or equal to end date!");
                         startDate = getStartDate(sc);
                     }
                     ap.setStartDate(startDate);
@@ -521,7 +524,7 @@ public class InputHandler {
                 case "2":
                     LocalDate endDate = getEndDate(sc);
                     while (endDate.isBefore(ap.getStartDate())) {
-                        System.out.println("End date must be after or equal to start date!");
+                        System.err.println("End date must be after or equal to start date!");
                         endDate = getEndDate(sc);
                     }
                     ap.setEndDate(endDate);
@@ -534,7 +537,7 @@ public class InputHandler {
                     Main.changesMade = true;
                     break;
                 default:
-                    System.out.println("Invalid input, please try again!");
+                    System.err.println("Invalid input, please try again!");
                     command = sc.nextLine();
                     continue;
             }
@@ -568,17 +571,17 @@ public class InputHandler {
                         } else if (command.equals("No")) {
                             break;
                         } else {
-                            System.out.println("Invalid input, please try again!");
+                            System.err.println("Invalid input, please try again!");
                         }
                     }
                 } else {
-                    System.out.println("Invalid input, please try again!");
+                    System.err.println("Invalid input, please try again!");
                     command = sc.nextLine();
                     continue;
                 }
             } catch (Exception e) {
-                e.printStackTrace();
-                System.out.println("Invalid input, please try again!");
+                System.err.println(e.getMessage());
+                System.err.println("Invalid input, please try again!");
                 command = sc.nextLine();
                 continue;
             }
@@ -604,7 +607,7 @@ public class InputHandler {
             } else if (command.equals("No")) {
                 break;
             } else {
-                System.out.println("Invalid input, please try again!");
+                System.err.println("Invalid input, please try again!");
             }
         }
         return false;

@@ -26,7 +26,8 @@ public class CSVWriter {
                 writer.println(lineAsStr);
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            System.err.println(e.getMessage());
+            System.err.println("Something went wrong while writing data!");
         }
     }
 }

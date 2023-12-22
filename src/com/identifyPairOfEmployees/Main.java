@@ -25,7 +25,8 @@ public class Main {
                 System.out.println("Changes saved successfully!");
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            System.err.println(e.getMessage());
+            System.err.println("Something went wrong! Restart to check if the error still occurs!");
         }
     }
 
