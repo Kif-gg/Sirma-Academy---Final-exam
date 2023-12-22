@@ -159,6 +159,16 @@ public class ConsoleMenus {
                 """;
     }
 
+    public static String editEmployeeMenu = """
+            ╭───────────────────────────────────╮
+            │           Edit employee           │
+            │───────────────────────────────────│
+            │ 0. Go back                        │
+            │ 1. Add project assignment(s)      │
+            │ 2. Edit a project assignment      │
+            │ 3. Delete a project assignment    │
+            ╰───────────────────────────────────╯
+            """;
 
     public static String printEmployeesAndProjects(PairGetter pairGetter) {
         StringBuilder sb = new StringBuilder();
