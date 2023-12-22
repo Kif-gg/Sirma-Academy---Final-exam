@@ -9,6 +9,9 @@ import com.identifyPairOfEmployees.models.Employee;
 import com.identifyPairOfEmployees.util.DateParser;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Locale;
 import java.util.Scanner;
 
 public class InputHandler {
@@ -204,7 +207,6 @@ public class InputHandler {
                         break;
                     case "3":
                         createEmployee(sc);
-                        Main.changesMade = true;
                         break;
                     default:
                         System.out.println("Invalid input, please try again!");
@@ -229,7 +231,7 @@ public class InputHandler {
             } else {
                 try {
                     int employeeIndex = Integer.parseInt(command) - 1;
-                    if (employeeIndex >= 0 && employeeIndex - 1 < Main.employees.size()) {
+                    if (employeeIndex >= 0 && employeeIndex < Main.employees.size()) {
                         manageEmployeeDetailsMenu(sc, employeeIndex);
                     } else {
                         System.out.println("Invalid input, please try again!");
@@ -257,6 +259,9 @@ public class InputHandler {
                     editEmployeeMenu(sc, employeeIndex);
                     break;
                 case "2":
+                    if (deleteEmployee(sc, employeeIndex)) {
+                        return;
+                    }
                     break;
                 default:
                     System.out.println("Invalid input, please try again!");
@@ -281,9 +286,9 @@ public class InputHandler {
 
     private static void createEmployee(Scanner sc) {
         System.out.println("Create new employee record");
-        int empId = generateUniqueEmployeeId();
+        int empID = generateUniqueEmployeeID();
 
-        Employee addedEmployee = new Employee(empId);
+        Employee addedEmployee = new Employee(empID);
         assignProjectsToEmployee(sc, addedEmployee);
 
         Main.employees.add(addedEmployee);
@@ -291,20 +296,21 @@ public class InputHandler {
             CSVLine line = new CSVLine(addedEmployee.getID(), ap.getProjectID(), ap.getStartDate(), ap.getEndDate());
             Main.lines.add(line);
         }
+        Main.changesMade = true;
         System.out.println("Employee created successfully!");
     }
 
-    private static int generateUniqueEmployeeId() {
-        int empId = (int) Math.floor(Math.random() * 10000);
-        while (isEmployeeIdTaken(empId)) {
-            empId = (int) Math.floor(Math.random() * 10000);
+    private static int generateUniqueEmployeeID() {
+        int empID = (int) Math.floor(Math.random() * 10000);
+        while (isEmployeeIDTaken(empID)) {
+            empID = (int) Math.floor(Math.random() * 10000);
         }
-        return empId;
+        return empID;
     }
 
-    private static boolean isEmployeeIdTaken(int empId) {
+    private static boolean isEmployeeIDTaken(int empID) {
         for (Employee employee : Main.employees) {
-            if (employee.getID() == empId) {
+            if (employee.getID() == empID) {
                 return true;
             }
         }
@@ -332,51 +338,57 @@ public class InputHandler {
         LocalDate startDate;
         LocalDate endDate;
         while (!isCommandValid) {
-            int projId = getProjectId(sc, employee);
+            int projID = getProjectID(sc, employee);
             startDate = getStartDate(sc);
             endDate = getEndDate(sc);
 
-            while (!startDate.isBefore(endDate)) {
-                System.out.println("Start date must be before end date!");
+            while (endDate.isBefore(startDate)) {
+                System.out.println("Start date must be before or equal to end date!");
                 endDate = getEndDate(sc);
             }
-            AssignedProject ap = new AssignedProject(projId, startDate, endDate);
+            AssignedProject ap = new AssignedProject(projID, startDate, endDate);
             employee.addAssignedProject(ap);
             isCommandValid = true;
         }
     }
 
-    private static int getProjectId(Scanner sc, Employee addedEmployee) {
-        int projId = 0;
+    private static int getProjectID(Scanner sc, Employee addedEmployee) {
+        int projID = 0;
         boolean doesHaveAssignedPr = true;
         String command;
         while (doesHaveAssignedPr) {
             command = sc.nextLine();
             try {
-                projId = Integer.parseInt(command);
-                int finalProjId = projId;
+                projID = Integer.parseInt(command);
+                int finalProjID = projID;
                 doesHaveAssignedPr = addedEmployee.getAssignedProjects()
                         .stream()
-                        .anyMatch(assignedProject -> assignedProject.getProjectID() == finalProjId);
+                        .anyMatch(assignedProject -> assignedProject.getProjectID() == finalProjID);
                 if (doesHaveAssignedPr) {
                     System.out.println("This project is already assigned to the employee!");
                 }
             } catch (Exception e) {
                 e.printStackTrace();
-                System.out.println("Invalid project ID!");
+                System.out.println("Invalid project ID! Use numbers only!");
             }
         }
-        return projId;
+        return projID;
     }
 
     private static LocalDate getStartDate(Scanner sc) {
         System.out.printf("REMINDER! Your preferred date format is '%s'%n", Main.dateParser.getDateFormat());
         System.out.println("Type in the starting date of the assignment:");
         String command = sc.nextLine();
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern(Main.dateParser.getDateFormat(), Locale.ENGLISH);
         while (true) {
             try {
                 if (Main.dateParser.validateFormat(command)) {
-                    return LocalDate.parse(command);
+                    if (LocalDate.parse(command, dtf).isBefore(LocalDate.now()) || LocalDate.parse(command, dtf).isEqual(LocalDate.now())) {
+                        return LocalDate.parse(command, dtf);
+                    } else {
+                        System.out.println("Date must not be after the current date!");
+                        command = sc.nextLine();
+                    }
                 } else {
                     System.out.println("Invalid input, please try again!");
                     command = sc.nextLine();
@@ -390,24 +402,28 @@ public class InputHandler {
     }
 
     private static LocalDate getEndDate(Scanner sc) {
+        System.out.printf("REMINDER! Your preferred date format is '%s'%n", Main.dateParser.getDateFormat());
         System.out.println("Type in the ending date of the assignment or type 'NULL' if the assignment has not ended:");
-        String command = sc.nextLine();
-        if (command.equals("NULL")) {
-            return LocalDate.now();
-        } else {
-            while (true) {
-                try {
+        while (true) {
+            String command = sc.nextLine();
+            try {
+                if (command.equals("NULL")) {
+                    return LocalDate.now();
+                } else {
+                    DateTimeFormatter dtf = DateTimeFormatter.ofPattern(Main.dateParser.getDateFormat(), Locale.ENGLISH);
                     if (Main.dateParser.validateFormat(command)) {
-                        return LocalDate.parse(command);
+                        if (LocalDate.parse(command, dtf).isBefore(LocalDate.now()) || LocalDate.parse(command, dtf).isEqual(LocalDate.now())) {
+                            return LocalDate.parse(command, dtf);
+                        } else {
+                            System.out.println("Date must not be after the current date!");
+                        }
                     } else {
                         System.out.println("Invalid input, please try again!");
-                        command = sc.nextLine();
                     }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    System.out.println("Invalid input, please try again!");
-                    command = sc.nextLine();
                 }
+            } catch (Exception e) {
+                e.printStackTrace();
+                System.out.println("Invalid input, please try again!");
             }
         }
     }
@@ -420,10 +436,30 @@ public class InputHandler {
             switch (command) {
                 case "1":
                     assignProjectsToEmployee(sc, employee);
+                    for (AssignedProject ap : employee.getAssignedProjects()) {
+                        boolean isExisting = false;
+                        for (CSVLine line : Main.lines) {
+                            if (ap.getProjectID() == line.getProjectID() && line.getEmpID() == employee.getID()) {
+                                isExisting = true;
+                                break;
+                            }
+                        }
+                        if (!isExisting) {
+                            CSVLine lineToAdd = new CSVLine(employee.getID(), ap.getProjectID(), ap.getStartDate(), ap.getEndDate());
+                            Main.lines.add(lineToAdd);
+                        }
+                    }
+                    Main.changesMade = true;
                     break;
                 case "2":
+                    editProjectAssignment(sc, employee);
                     break;
                 case "3":
+                    if (employee.getAssignedProjects().size() == 1) {
+                        System.out.println("Employee must have at least two projects assigned to delete one!");
+                    } else {
+                        deleteAssignment(sc, employee);
+                    }
                     break;
                 default:
                     System.out.println("Invalid input, please try again!");
@@ -433,5 +469,144 @@ public class InputHandler {
             System.out.println(ConsoleMenus.editEmployeeMenu);
             command = sc.nextLine();
         }
+    }
+
+    private static void editProjectAssignment(Scanner sc, Employee employee) {
+        ArrayList<AssignedProject> assignedProjects = employee.getAssignedProjects();
+        int empID = employee.getID();
+        System.out.println(ConsoleMenus.projectAssignmentsMenu(assignedProjects));
+        String command = sc.nextLine();
+        while (!command.equals("0")) {
+            try {
+                int projectIndex = Integer.parseInt(command) - 1;
+                if (projectIndex >= 0 && projectIndex < assignedProjects.size()) {
+                    AssignedProject ap = assignedProjects.get(projectIndex);
+                    manageProjectDetailsMenu(sc, ap, empID);
+                } else {
+                    System.out.println("Invalid input, please try again!");
+                    command = sc.nextLine();
+                    continue;
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                System.out.println("Invalid input, please try again!");
+                command = sc.nextLine();
+                continue;
+            }
+            System.out.println(ConsoleMenus.projectAssignmentsMenu(assignedProjects));
+            command = sc.nextLine();
+        }
+    }
+
+    private static void manageProjectDetailsMenu(Scanner sc, AssignedProject ap, int empID) {
+        System.out.println(ConsoleMenus.editAssignmentDatesMenu(ap));
+        String command = sc.nextLine();
+        while (!command.equals("0")) {
+            switch (command) {
+                case "1":
+                    LocalDate startDate = getStartDate(sc);
+                    while (ap.getEndDate().isBefore(startDate)) {
+                        System.out.println("Start date must be before or equal to end date!");
+                        startDate = getStartDate(sc);
+                    }
+                    ap.setStartDate(startDate);
+                    for (CSVLine line : Main.lines) {
+                        if (line.getEmpID() == empID && line.getProjectID() == ap.getProjectID()) {
+                            line.setStartDate(startDate);
+                            break;
+                        }
+                    }
+                    Main.changesMade = true;
+                    break;
+                case "2":
+                    LocalDate endDate = getEndDate(sc);
+                    while (endDate.isBefore(ap.getStartDate())) {
+                        System.out.println("End date must be after or equal to start date!");
+                        endDate = getEndDate(sc);
+                    }
+                    ap.setEndDate(endDate);
+                    for (CSVLine line : Main.lines) {
+                        if (line.getEmpID() == empID && line.getProjectID() == ap.getProjectID()) {
+                            line.setEndDate(endDate);
+                            break;
+                        }
+                    }
+                    Main.changesMade = true;
+                    break;
+                default:
+                    System.out.println("Invalid input, please try again!");
+                    command = sc.nextLine();
+                    continue;
+            }
+            System.out.println(ConsoleMenus.editAssignmentDatesMenu(ap));
+            command = sc.nextLine();
+        }
+    }
+
+    private static void deleteAssignment(Scanner sc, Employee employee) {
+        ArrayList<AssignedProject> assignedProjects = employee.getAssignedProjects();
+        System.out.println(ConsoleMenus.projectAssignmentsMenu(assignedProjects));
+        String command = sc.nextLine();
+        while (!command.equals("0")) {
+            try {
+                int projectIndex = Integer.parseInt(command) - 1;
+                if (projectIndex >= 0 && projectIndex < assignedProjects.size()) {
+                    System.out.println("Are You sure You want to delete this assignment? (type 'Yes' or 'No')");
+                    while (true) {
+                        command = sc.nextLine();
+                        if (command.equals("Yes")) {
+                            AssignedProject ap = assignedProjects.get(projectIndex);
+                            for (int i = Main.lines.size() - 1; i >= 0; i--) {
+                                if (Main.lines.get(i).getEmpID() == employee.getID() && Main.lines.get(i).getProjectID() == ap.getProjectID()) {
+                                    Main.lines.remove(i);
+                                    Main.changesMade = true;
+                                    break;
+                                }
+                            }
+                            assignedProjects.remove(projectIndex);
+                            return;
+                        } else if (command.equals("No")) {
+                            break;
+                        } else {
+                            System.out.println("Invalid input, please try again!");
+                        }
+                    }
+                } else {
+                    System.out.println("Invalid input, please try again!");
+                    command = sc.nextLine();
+                    continue;
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                System.out.println("Invalid input, please try again!");
+                command = sc.nextLine();
+                continue;
+            }
+            System.out.println(ConsoleMenus.projectAssignmentsMenu(assignedProjects));
+            command = sc.nextLine();
+        }
+    }
+
+    private static boolean deleteEmployee(Scanner sc, int employeeIndex) {
+        System.out.println("Are You sure You want to DELETE this employee? (type 'Yes' or 'No')");
+        String command;
+        while (true) {
+            command = sc.nextLine();
+            if (command.equals("Yes")) {
+                for (int i = Main.lines.size() - 1; i >= 0; i--) {
+                    if (Main.lines.get(i).getEmpID() == Main.employees.get(employeeIndex).getID()) {
+                        Main.lines.remove(i);
+                    }
+                }
+                Main.employees.remove(employeeIndex);
+                Main.changesMade = true;
+                return true;
+            } else if (command.equals("No")) {
+                break;
+            } else {
+                System.out.println("Invalid input, please try again!");
+            }
+        }
+        return false;
     }
 }
