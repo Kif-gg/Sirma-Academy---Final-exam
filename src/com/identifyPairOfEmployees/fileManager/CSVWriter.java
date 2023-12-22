@@ -14,8 +14,8 @@ public class CSVWriter {
             writer.println("EmpID, ProjectID, DateFrom, DateTo");
             for (CSVLine line : Main.lines) {
                 ArrayList<String> lineAsArr = new ArrayList<>();
-                lineAsArr.add(String.valueOf(line.getEmpId()));
-                lineAsArr.add(String.valueOf(line.getProjectId()));
+                lineAsArr.add(String.valueOf(line.getEmpID()));
+                lineAsArr.add(String.valueOf(line.getProjectID()));
                 lineAsArr.add(String.valueOf(line.getStartDate()));
                 if (line.getEndDate().equals(LocalDate.now())) {
                     lineAsArr.add("NULL");
