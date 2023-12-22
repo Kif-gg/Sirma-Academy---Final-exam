@@ -263,7 +263,7 @@ public class ConsoleMenus {
                 │ Total days working:\s""" + daysTotal + " ".repeat(14 - String.valueOf(daysTotal).length()) + "│\r\n"
                 + """
                 │───────────────────────────────────│
-                │ Project IDs and days per project │
+                │ Project IDs and days per project  │
                 │───────────────────────────────────│
                 """ + sb;
     }
