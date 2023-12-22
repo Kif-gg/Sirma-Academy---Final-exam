@@ -4,8 +4,8 @@ import java.time.LocalDate;
 
 public class AssignedProject {
     private final int projectID;
-    private final LocalDate startDate;
-    private final LocalDate endDate;
+    private LocalDate startDate;
+    private LocalDate endDate;
 
     public AssignedProject(int projectID, LocalDate startDate, LocalDate endDate) {
         this.projectID = projectID;
@@ -23,5 +23,13 @@ public class AssignedProject {
 
     public LocalDate getEndDate() {
         return endDate;
+    }
+
+    public void setStartDate(LocalDate startDate) {
+        this.startDate = startDate;
+    }
+
+    public void setEndDate(LocalDate endDate) {
+        this.endDate = endDate;
     }
 }
