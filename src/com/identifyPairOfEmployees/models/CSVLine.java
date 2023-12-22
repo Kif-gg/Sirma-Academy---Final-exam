@@ -4,7 +4,7 @@ import java.time.LocalDate;
 
 public class CSVLine {
     private final int empID;
-    private int projectID;
+    private final int projectID;
     private LocalDate startDate;
     private LocalDate endDate;
 
