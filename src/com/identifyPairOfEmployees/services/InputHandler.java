@@ -3,13 +3,17 @@ package com.identifyPairOfEmployees.services;
 import com.identifyPairOfEmployees.Main;
 import com.identifyPairOfEmployees.consoleUI.ConsoleMenus;
 import com.identifyPairOfEmployees.fileManager.CSVReader;
+import com.identifyPairOfEmployees.models.AssignedProject;
+import com.identifyPairOfEmployees.models.CSVLine;
+import com.identifyPairOfEmployees.models.Employee;
 import com.identifyPairOfEmployees.util.DateParser;
 
+import java.time.LocalDate;
 import java.util.Scanner;
 
 public class InputHandler {
-    public static DateParser createDateParser() {
-        try (Scanner sc = new Scanner(System.in)) {
+    public static DateParser createDateParser(Scanner sc) {
+        try {
             System.out.println(ConsoleMenus.welcome);
             String command = sc.nextLine();
             while (!command.equals("0")) {
@@ -174,19 +178,232 @@ public class InputHandler {
                         return new DateParser(sb.toString());
                     case "2":
                         return new DateParser("yyyy-MM-dd");
+                    default:
+                        System.out.println("Invalid input, please try again!");
+                        command = sc.nextLine();
                 }
             }
         } catch (Exception e) {
             e.printStackTrace();
-            System.out.println(e.getMessage());
         }
         return null;
     }
 
-    public static void printResult() {
-        Main.employees = CSVReader.read();
+    public static void manageMainMenu(Scanner sc) {
+        try {
+            Main.employees = CSVReader.read();
+            System.out.println(ConsoleMenus.mainMenu);
+            String command = sc.nextLine();
+            while (!command.equals("0")) {
+                switch (command) {
+                    case "1":
+                        manageAllEmployeesMenu(sc);
+                        System.out.println(ConsoleMenus.mainMenu);
+                        break;
+                    case "2":
+                        managePairMenu(sc);
+                        System.out.println(ConsoleMenus.mainMenu);
+                        break;
+                    case "3":
+                        createEmployee(sc);
+                        Main.changesMade = true;
+                        System.out.println(ConsoleMenus.mainMenu);
+                        break;
+                    default:
+                        System.out.println("Invalid input, please try again!");
+                        break;
+                }
+                command = sc.nextLine();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void manageAllEmployeesMenu(Scanner sc) {
+        System.out.println(ConsoleMenus.showAllEmployees(Main.employees));
+        String command = sc.nextLine();
+        while (!command.equals("0")) {
+            if (Main.employees.isEmpty()) {
+                System.out.println("Invalid input, please try again!");
+                command = sc.nextLine();
+                continue;
+            } else {
+                try {
+                    int employeeIndex = Integer.parseInt(command) - 1;
+                    if (employeeIndex >= 0 && employeeIndex - 1 < Main.employees.size()) {
+                        manageEmployeeDetailsMenu(sc, employeeIndex);
+                    } else {
+                        System.out.println("Invalid input, please try again!");
+                        command = sc.nextLine();
+                        continue;
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    System.out.println("Invalid input, please try again!");
+                    command = sc.nextLine();
+                    continue;
+                }
+            }
+            System.out.println(ConsoleMenus.showAllEmployees(Main.employees));
+            command = sc.nextLine();
+        }
+    }
+
+    private static void manageEmployeeDetailsMenu(Scanner sc, int employeeIndex) {
+        System.out.println(ConsoleMenus.showEmployeeDetails(employeeIndex));
+        String command = sc.nextLine();
+        while (!command.equals("0")) {
+            switch (command) {
+                case "1":
+                    break;
+            }
+            System.out.println(ConsoleMenus.showEmployeeDetails(employeeIndex));
+            command = sc.nextLine();
+        }
+    }
+
+    private static void managePairMenu(Scanner sc) {
         PairGetter pg = new PairGetter();
         pg.findLongestWorkingPair();
         System.out.println(ConsoleMenus.printEmployeesAndProjects(pg));
+        String command = sc.nextLine();
+        while (!command.equals("0")) {
+            System.out.println("Invalid input, please try again!");
+            command = sc.nextLine();
+        }
+    }
+
+    private static void createEmployee(Scanner sc) {
+        System.out.println("Create new employee record");
+        int empId = generateUniqueEmployeeId();
+
+        Employee addedEmployee = new Employee(empId);
+        assignProjectsToEmployee(sc, addedEmployee);
+
+        Main.employees.add(addedEmployee);
+        for (AssignedProject ap : addedEmployee.getAssignedProjects()) {
+            CSVLine line = new CSVLine(addedEmployee.getID(), ap.getProjectID(), ap.getStartDate(), ap.getEndDate());
+            Main.lines.add(line);
+        }
+        System.out.println("Employee created successfully!");
+    }
+
+    private static int generateUniqueEmployeeId() {
+        int empId = (int) Math.floor(Math.random() * 10000);
+        while (isEmployeeIdTaken(empId)) {
+            empId = (int) Math.floor(Math.random() * 10000);
+        }
+        return empId;
+    }
+
+    private static boolean isEmployeeIdTaken(int empId) {
+        for (Employee employee : Main.employees) {
+            if (employee.getID() == empId) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static void assignProjectsToEmployee(Scanner sc, Employee addedEmployee) {
+        boolean hasFinishedAssigning = false;
+        while (!hasFinishedAssigning) {
+            assignProjectToEmployee(sc, addedEmployee);
+
+            System.out.println("Will you add more assignments to this employee? (type 'Yes' or 'No')");
+            String command = sc.nextLine();
+            if (command.equals("No")) {
+                hasFinishedAssigning = true;
+            } else if (!command.equals("Yes")) {
+                System.out.println("Invalid input, please try again!");
+            }
+        }
+    }
+
+    private static void assignProjectToEmployee(Scanner sc, Employee addedEmployee) {
+        System.out.println("Assign to the employee a project (Type just the ID of the project):");
+        boolean isCommandValid = false;
+        LocalDate startDate;
+        LocalDate endDate;
+        while (!isCommandValid) {
+            int projId = getProjectId(sc, addedEmployee);
+            startDate = getStartDate(sc);
+            endDate = getEndDate(sc);
+
+            while (!startDate.isBefore(endDate)) {
+                System.out.println("Start date must be before end date!");
+                endDate = getEndDate(sc);
+            }
+            AssignedProject ap = new AssignedProject(projId, startDate, endDate);
+            addedEmployee.addAssignedProject(ap);
+            isCommandValid = true;
+        }
+    }
+
+    private static int getProjectId(Scanner sc, Employee addedEmployee) {
+        int projId = 0;
+        boolean doesHaveAssignedPr = true;
+        String command;
+        while (doesHaveAssignedPr) {
+            command = sc.nextLine();
+            try {
+                projId = Integer.parseInt(command);
+                int finalProjId = projId;
+                doesHaveAssignedPr = addedEmployee.getAssignedProjects()
+                        .stream()
+                        .anyMatch(assignedProject -> assignedProject.getProjectID() == finalProjId);
+                if (doesHaveAssignedPr) {
+                    System.out.println("This project is already assigned to the employee!");
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                System.out.println("Invalid project ID!");
+            }
+        }
+        return projId;
+    }
+
+    private static LocalDate getStartDate(Scanner sc) {
+        System.out.printf("REMINDER! Your preferred date format is '%s'%n", Main.dateParser.getDateFormat());
+        System.out.println("Type in the starting date of the assignment:");
+        String command = sc.nextLine();
+        while (true) {
+            try {
+                if (Main.dateParser.validateFormat(command)) {
+                    return LocalDate.parse(command);
+                } else {
+                    System.out.println("Invalid input, please try again!");
+                    command = sc.nextLine();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                System.out.println("Invalid input, please try again!");
+                command = sc.nextLine();
+            }
+        }
+    }
+
+    private static LocalDate getEndDate(Scanner sc) {
+        System.out.println("Type in the ending date of the assignment or type 'NULL' if the project has not ended:");
+        String command = sc.nextLine();
+        if (command.equals("NULL")) {
+            return LocalDate.now();
+        } else {
+            while (true) {
+                try {
+                    if (Main.dateParser.validateFormat(command)) {
+                        return LocalDate.parse(command);
+                    } else {
+                        System.out.println("Invalid input, please try again!");
+                        command = sc.nextLine();
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    System.out.println("Invalid input, please try again!");
+                    command = sc.nextLine();
+                }
+            }
+        }
     }
 }
