@@ -20,7 +20,7 @@ public class CSVReader {
             while ((line = br.readLine()) != null) {
                 String[] values = line.split(", ");
                 int empID = Integer.parseInt(values[0]);
-                int projId = Integer.parseInt(values[1]);
+                int projID = Integer.parseInt(values[1]);
                 LocalDate dateFrom = LocalDate.parse(values[2]);
                 LocalDate dateTo;
                 if (values[3].equals("NULL")) {
@@ -29,9 +29,9 @@ public class CSVReader {
                 } else {
                     dateTo = LocalDate.parse(values[3]);
                 }
-                AssignedProject assignedProject = new AssignedProject(projId, dateFrom, dateTo);
+                AssignedProject assignedProject = new AssignedProject(projID, dateFrom, dateTo);
 
-                Employee searchEmployee = findEmployeeById(empID, employees);
+                Employee searchEmployee = findEmployeeByID(empID, employees);
                 if (searchEmployee == null) {
                     Employee employee = new Employee(empID);
                     employee.addAssignedProject(assignedProject);
@@ -39,7 +39,7 @@ public class CSVReader {
                 } else {
                     searchEmployee.addAssignedProject(assignedProject);
                 }
-                lines.add(new CSVLine(empID, projId, dateFrom, dateTo));
+                lines.add(new CSVLine(empID, projID, dateFrom, dateTo));
             }
         } catch (IOException exception) {
             exception.printStackTrace();
@@ -48,9 +48,9 @@ public class CSVReader {
         return employees;
     }
 
-    public static Employee findEmployeeById(int id, ArrayList<Employee> employees) {
+    public static Employee findEmployeeByID(int ID, ArrayList<Employee> employees) {
         for (Employee employee : employees) {
-            if (employee.getID() == id) {
+            if (employee.getID() == ID) {
                 return employee;
             }
         }
