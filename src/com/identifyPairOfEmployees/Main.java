@@ -4,6 +4,7 @@ import com.identifyPairOfEmployees.fileManager.CSVWriter;
 import com.identifyPairOfEmployees.models.CSVLine;
 import com.identifyPairOfEmployees.models.Employee;
 import com.identifyPairOfEmployees.services.InputHandler;
+import com.identifyPairOfEmployees.util.ColorfulLogging;
 import com.identifyPairOfEmployees.util.DateParser;
 
 import java.util.ArrayList;
@@ -20,9 +21,9 @@ public class Main {
         try (Scanner sc = new Scanner(System.in)) {
             startApp(sc);
             if (changesMade) {
-                System.out.println("CHANGES DETECTED! Saving...");
+                System.out.println(ColorfulLogging.ANSI_BLUE + "CHANGES DETECTED! Saving..." + ColorfulLogging.ANSI_RESET);
                 CSVWriter.write();
-                System.out.println("Changes saved successfully!");
+                System.out.println(ColorfulLogging.ANSI_GREEN + "Changes saved successfully!" + ColorfulLogging.ANSI_RESET);
             }
         } catch (Exception e) {
             System.err.println(e.getMessage());

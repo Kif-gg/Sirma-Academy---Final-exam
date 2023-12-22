@@ -6,6 +6,7 @@ import com.identifyPairOfEmployees.fileManager.CSVReader;
 import com.identifyPairOfEmployees.models.AssignedProject;
 import com.identifyPairOfEmployees.models.CSVLine;
 import com.identifyPairOfEmployees.models.Employee;
+import com.identifyPairOfEmployees.util.ColorfulLogging;
 import com.identifyPairOfEmployees.util.DateParser;
 
 import java.time.LocalDate;
@@ -288,7 +289,7 @@ public class InputHandler {
     }
 
     private static void createEmployee(Scanner sc) {
-        System.out.println("Create new employee record");
+        System.out.println(ColorfulLogging.ANSI_BLUE + "Create new employee record" + ColorfulLogging.ANSI_RESET);
         int empID = generateUniqueEmployeeID();
 
         Employee addedEmployee = new Employee(empID);
@@ -300,7 +301,7 @@ public class InputHandler {
             Main.lines.add(line);
         }
         Main.changesMade = true;
-        System.out.println("Employee created successfully!");
+        System.out.println(ColorfulLogging.ANSI_GREEN + "Employee created successfully!" + ColorfulLogging.ANSI_RESET);
     }
 
     private static int generateUniqueEmployeeID() {
@@ -325,7 +326,7 @@ public class InputHandler {
         while (!hasFinishedAssigning) {
             assignProjectToEmployee(sc, employee);
 
-            System.out.println("Will you add more assignments to this employee? (type 'Yes' or 'No')");
+            System.out.println(ColorfulLogging.ANSI_BLUE + "Will you add more assignments to this employee? (type 'Yes' or 'No')" + ColorfulLogging.ANSI_RESET);
             String command = sc.nextLine();
             if (command.equals("No")) {
                 hasFinishedAssigning = true;
@@ -336,7 +337,7 @@ public class InputHandler {
     }
 
     private static void assignProjectToEmployee(Scanner sc, Employee employee) {
-        System.out.println("Assign a project to the employee (Just type the ID of the project):");
+        System.out.println(ColorfulLogging.ANSI_BLUE + "Assign a project to the employee (Just type the ID of the project):" + ColorfulLogging.ANSI_RESET);
         boolean isCommandValid = false;
         LocalDate startDate;
         LocalDate endDate;
@@ -379,8 +380,8 @@ public class InputHandler {
     }
 
     private static LocalDate getStartDate(Scanner sc) {
-        System.out.printf("REMINDER! Your preferred date format is '%s'%n", Main.dateParser.getDateFormat());
-        System.out.println("Type in the starting date of the assignment:");
+        System.out.printf(ColorfulLogging.ANSI_YELLOW + "REMINDER! Your preferred date format is '%s'%n", Main.dateParser.getDateFormat() + ColorfulLogging.ANSI_RESET);
+        System.out.println(ColorfulLogging.ANSI_BLUE + "Type in the starting date of the assignment:" + ColorfulLogging.ANSI_RESET);
         String command = sc.nextLine();
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern(Main.dateParser.getDateFormat(), Locale.ENGLISH);
         while (true) {
@@ -405,8 +406,8 @@ public class InputHandler {
     }
 
     private static LocalDate getEndDate(Scanner sc) {
-        System.out.printf("REMINDER! Your preferred date format is '%s'%n", Main.dateParser.getDateFormat());
-        System.out.println("Type in the ending date of the assignment or type 'NULL' if the assignment has not ended:");
+        System.out.printf(ColorfulLogging.ANSI_YELLOW + "REMINDER! Your preferred date format is '%s'%n", Main.dateParser.getDateFormat() + ColorfulLogging.ANSI_RESET);
+        System.out.println(ColorfulLogging.ANSI_BLUE + "Type in the ending date of the assignment or type 'NULL' if the assignment has not ended:" + ColorfulLogging.ANSI_RESET);
         while (true) {
             String command = sc.nextLine();
             try {
@@ -554,7 +555,7 @@ public class InputHandler {
             try {
                 int projectIndex = Integer.parseInt(command) - 1;
                 if (projectIndex >= 0 && projectIndex < assignedProjects.size()) {
-                    System.out.println("Are You sure You want to delete this assignment? (type 'Yes' or 'No')");
+                    System.out.println(ColorfulLogging.ANSI_YELLOW + "Are You sure You want to DELETE this assignment? (type 'Yes' or 'No')" + ColorfulLogging.ANSI_RESET);
                     while (true) {
                         command = sc.nextLine();
                         if (command.equals("Yes")) {
@@ -591,7 +592,7 @@ public class InputHandler {
     }
 
     private static boolean deleteEmployee(Scanner sc, int employeeIndex) {
-        System.out.println("Are You sure You want to DELETE this employee? (type 'Yes' or 'No')");
+        System.out.println(ColorfulLogging.ANSI_YELLOW + "Are You sure You want to DELETE this employee? (type 'Yes' or 'No')" + ColorfulLogging.ANSI_RESET);
         String command;
         while (true) {
             command = sc.nextLine();
