@@ -5,7 +5,6 @@ import com.identifyPairOfEmployees.models.AssignedProject;
 import com.identifyPairOfEmployees.models.Employee;
 import com.identifyPairOfEmployees.services.PairGetter;
 
-import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Locale;
@@ -16,11 +15,10 @@ public class ConsoleMenus {
             │              Welcome!             │
             │    Please choose an option by     │
             │       submitting a number.        │
-            │    Default format: yyyy-mm-dd     │
             │───────────────────────────────────│
             │ 0. Exit                           │
             │ 1. Customize date format          │
-            │ 2. Skip                           │
+            │ 2. Use default format: yyyy-MM-dd │
             ╰───────────────────────────────────╯
             """;
 
@@ -118,7 +116,8 @@ public class ConsoleMenus {
     public static String showEmployeeDetails(int employeeIndex) {
         Employee employee = Main.employees.get(employeeIndex);
         StringBuilder sb = new StringBuilder();
-        sb.append("│ Employee ID: ")
+        sb
+                .append("│ Employee ID: ")
                 .append(employee.getID())
                 .append(" ".repeat(21 - String.valueOf(employee.getID()).length()))
                 .append("│\r\n")
@@ -127,13 +126,14 @@ public class ConsoleMenus {
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern(Main.dateParser.getDateFormat(), Locale.ENGLISH);
         for (AssignedProject ap : employee.getAssignedProjects()) {
-            int projectId = ap.getProjectID();
+            int projectID = ap.getProjectID();
             String dateFrom = formatter.format(ap.getStartDate());
             String dateTo = formatter.format(ap.getEndDate());
-            sb.append("│───────────────────────────────────│\r\n")
+            sb
+                    .append("│───────────────────────────────────│\r\n")
                     .append("│ ● Project ID: ")
-                    .append(projectId)
-                    .append(" ".repeat(20 - String.valueOf(projectId).length()))
+                    .append(projectID)
+                    .append(" ".repeat(20 - String.valueOf(projectID).length()))
                     .append("│\r\n")
                     .append("│  ◆ Start date: ")
                     .append(dateFrom)
@@ -170,14 +170,71 @@ public class ConsoleMenus {
             ╰───────────────────────────────────╯
             """;
 
+    public static String projectAssignmentsMenu(ArrayList<AssignedProject> assignedProjects) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 1; i <= assignedProjects.size(); i++) {
+            AssignedProject ap = assignedProjects.get(i - 1);
+            sb
+                    .append("│ ")
+                    .append(i)
+                    .append(". Project ID: ")
+                    .append(ap.getProjectID())
+                    .append(" ".repeat(20 - (Integer.toString(i).length() + Integer.toString(ap.getProjectID()).length())))
+                    .append("│\r\n");
+        }
+        return """
+                ╭───────────────────────────────────╮
+                │            Assignments            │
+                │───────────────────────────────────│
+                │ 0. Go back                        │
+                """ +
+                sb + """
+                ╰───────────────────────────────────╯
+                """;
+    }
+
+    public static String editAssignmentDatesMenu(AssignedProject ap) {
+        StringBuilder sb = new StringBuilder();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(Main.dateParser.getDateFormat(), Locale.ENGLISH);
+        int projectID = ap.getProjectID();
+        String dateFrom = formatter.format(ap.getStartDate());
+        String dateTo = formatter.format(ap.getEndDate());
+        sb
+                .append("│ ● Project ID: ")
+                .append(projectID)
+                .append(" ".repeat(20 - String.valueOf(projectID).length()))
+                .append("│\r\n")
+                .append("│  ◆ Start date: ")
+                .append(dateFrom)
+                .append(" ".repeat(19 - dateFrom.length()))
+                .append("│\r\n")
+                .append("│  ◆ End date: ")
+                .append(dateTo)
+                .append(" ".repeat(21 - dateTo.length()))
+                .append("│\r\n");
+
+        return """
+                ╭───────────────────────────────────╮
+                │        Assignment details         │
+                │───────────────────────────────────│
+                │ 0. Go back                        │
+                │ 1. Edit start date                │
+                │ 2. Edit end date                  │
+                │───────────────────────────────────│
+                """ +
+                sb + """
+                ╰───────────────────────────────────╯
+                """;
+    }
+
     public static String printEmployeesAndProjects(PairGetter pairGetter) {
         StringBuilder sb = new StringBuilder();
 
-        int id1 = pairGetter.getFirstEmployeeID();
-        int id2 = pairGetter.getSecondEmployeeID();
+        int ID1 = pairGetter.getFirstEmployeeID();
+        int ID2 = pairGetter.getSecondEmployeeID();
         int daysTotal = pairGetter.getTotalDaysWorkingTogether();
         ArrayList<String> projectsAndDays = pairGetter.getProjectsAndDays();
-        if (id1 == 0 || id2 == 0 || daysTotal == 0) {
+        if (ID1 == 0 || ID2 == 0 || daysTotal == 0) {
             return """
                     ╭───────────────────────────────────╮
                     │    Insufficient data to show!     │
@@ -187,7 +244,10 @@ public class ConsoleMenus {
                     """;
         }
         for (String line : projectsAndDays) {
-            sb.append("│ ").append(line).append(" ".repeat(34 - line.length())).append("│\r\n");
+            sb
+                    .append("│ ")
+                    .append(line)
+                    .append(" ".repeat(34 - line.length())).append("│\r\n");
         }
         sb.append("╰───────────────────────────────────╯");
 
@@ -196,14 +256,14 @@ public class ConsoleMenus {
                 │ Longest working pair of employees │
                 │───────────────────────────────────│
                 │ 0. Go back                        │
-                │ First employee Id:\s""" + id1 + " ".repeat(15 - String.valueOf(id1).length()) + "│\r\n"
+                │ First employee ID:\s""" + ID1 + " ".repeat(15 - String.valueOf(ID1).length()) + "│\r\n"
                 + """
-                │ Second employee Id:\s""" + id2 + " ".repeat(14 - String.valueOf(id2).length()) + "│\r\n"
+                │ Second employee ID:\s""" + ID2 + " ".repeat(14 - String.valueOf(ID2).length()) + "│\r\n"
                 + """
                 │ Total days working:\s""" + daysTotal + " ".repeat(14 - String.valueOf(daysTotal).length()) + "│\r\n"
                 + """
                 │───────────────────────────────────│
-                │ Project Id-s and days per project │
+                │ Project IDs and days per project │
                 │───────────────────────────────────│
                 """ + sb;
     }
